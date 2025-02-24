@@ -6,3 +6,5 @@
 /anniedad
 # Config
 internal/config/anniedad.yaml
+
+./examples/

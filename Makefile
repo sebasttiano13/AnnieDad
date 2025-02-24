@@ -20,14 +20,27 @@ help: ## This help
 build: ## Build app
 	CGO_ENABLED=$(CGO) GOOS=$(GOOS) GOARCH=$(GOARCH) go build -a -installsuffix cgo -o $(BINARY_NAME) ./cmd/server
 
-tests: ## Run tests
-	go test -v ./...
+# TOOLS
 
 lint: ## Run linters
 	golangci-lint run -v ./...
 
 install_lint: ## Get GLOLANGCI_LINT and install
 	curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $$(go env GOPATH)/bin $(GOLANG_CI_VERSION)
+
+cert: ## generate TLC certs
+	cd cert; ./gen.sh; cd ..
+
+tests: ## Run local tests
+	go test -v -coverprofile=cover.txt `go list ./... | egrep -v 'proto|mock'`
+
+coverage: ## Check coverage
+	go tool cover -func cover.txt
+
+test-cover: tests coverage ## Run local tests with coverage checking
+
+proto: ## Generate grpc files
+	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative ./internal/proto/owl.proto
 
 # VERSIONS
 
@@ -42,5 +55,3 @@ bump-major: tests ## Bump major version
 
 version: ## Output the current version
 	@echo $(VERSION)
-
-
