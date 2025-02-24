@@ -1,0 +1,8 @@
+# IDE
+.vscode/
+.idea/
+.DS_Store
+# binaries
+/anniedad
+# Config
+internal/config/anniedad.yaml
