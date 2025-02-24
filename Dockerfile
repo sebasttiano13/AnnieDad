@@ -18,7 +18,7 @@ RUN CGO_ENABLED=0 go build -a -installsuffix cgo -o anniedad ./cmd/*.go
 # Create the final small image.
 FROM alpine:latest
 
-LABEL description="This is the API gateway server"
+LABEL description="This is the gRPC server for Annie project"
 
 RUN apk update && apk upgrade && apk add --no-cache ca-certificates && \
     rm -rf /var/cache/apk/* && \
