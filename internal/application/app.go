@@ -2,9 +2,12 @@ package application
 
 import (
 	"context"
+	_ "github.com/jackc/pgx/v5/stdlib"
+	"github.com/jmoiron/sqlx"
 	"github.com/sebasttiano13/AnnieDad/internal/config"
 	"github.com/sebasttiano13/AnnieDad/internal/server"
 	"github.com/sebasttiano13/AnnieDad/pkg/logger"
+	"os"
 	"os/signal"
 	"sync"
 	"syscall"
@@ -23,6 +26,14 @@ func Run(ctx context.Context, cfgPath string) error {
 		return err
 	}
 
+	var db *sqlx.DB
+	db, err = sqlx.Connect("pgx", cfg.DBCfg.GetDSN())
+	if err != nil {
+		logger.Errorf("database openning failed: %e", err)
+		os.Exit(1)
+	}
+	defer db.Close()
+
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGKILL, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	defer cancel()
 
@@ -35,7 +46,7 @@ func Run(ctx context.Context, cfgPath string) error {
 		CertKey:       cfg.Cert.Key,
 	}
 
-	grpcSrv := server.NewGRPSServer(settings)
+	grpcSrv := server.NewGRPSServer(settings, db)
 
 	wg.Add(1)
 	go grpcSrv.Start(cfg.GetGRPSAddress())

@@ -16,11 +16,26 @@ type Cert struct {
 	Key  string `yaml:"key" env:"CERT_KEY"`
 }
 
+// DBConfig stores database creds and addresses
+type DBConfig struct {
+	Host     string `yaml:"host" env:"DB_HOST" env-default:"localhost"`
+	Port     int    `yaml:"port" env:"DB_PORT" env-default:"5432"`
+	Name     string `yaml:"name" env:"DB_AME" env-default:"owl"`
+	User     string `yaml:"username"  env-default:"postgres"`
+	Password string `yaml:"password" env:"PASSWORD" env-default:"postgres"`
+	SSLMode  string `yaml:"sslmode" env:"DB_SSL_MODE" env-default:"disable"`
+}
+
+func (d *DBConfig) GetDSN() string {
+	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=%s", d.Host, d.User, d.Password, d.Name, d.SSLMode)
+}
+
 // DadConfig stores all config for the application
 type DadConfig struct {
 	LoggerCfg     LoggerConfig     `yaml:"logger"`
 	GRPSServerCfg GRPSServerConfig `yaml:"grps_server"`
 	Cert          Cert             `yaml:"cert"`
+	DBCfg         DBConfig         `yaml:"db"`
 }
 
 // GetGRPSAddress returns address:port of grps server

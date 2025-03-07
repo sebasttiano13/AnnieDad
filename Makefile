@@ -40,7 +40,7 @@ coverage: ## Check coverage
 test-cover: tests coverage ## Run local tests with coverage checking
 
 proto: ## Generate grpc files
-	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative ./internal/proto/owl.proto
+	protoc --go_out=. --go_opt=paths=source_relative --go-grpc_out=. --go-grpc_opt=paths=source_relative ./internal/proto/anniedad.proto
 
 # VERSIONS
 
