@@ -145,3 +145,93 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "internal/proto/anniedad.proto",
 }
+
+const (
+	PresignedURL_PostURL_FullMethodName = "/main.PresignedURL/PostURL"
+)
+
+// PresignedURLClient is the client API for PresignedURL service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type PresignedURLClient interface {
+	PostURL(ctx context.Context, in *PostMediaRequest, opts ...grpc.CallOption) (*PostMediaResponse, error)
+}
+
+type presignedURLClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewPresignedURLClient(cc grpc.ClientConnInterface) PresignedURLClient {
+	return &presignedURLClient{cc}
+}
+
+func (c *presignedURLClient) PostURL(ctx context.Context, in *PostMediaRequest, opts ...grpc.CallOption) (*PostMediaResponse, error) {
+	out := new(PostMediaResponse)
+	err := c.cc.Invoke(ctx, PresignedURL_PostURL_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// PresignedURLServer is the server API for PresignedURL service.
+// All implementations must embed UnimplementedPresignedURLServer
+// for forward compatibility
+type PresignedURLServer interface {
+	PostURL(context.Context, *PostMediaRequest) (*PostMediaResponse, error)
+	mustEmbedUnimplementedPresignedURLServer()
+}
+
+// UnimplementedPresignedURLServer must be embedded to have forward compatible implementations.
+type UnimplementedPresignedURLServer struct {
+}
+
+func (UnimplementedPresignedURLServer) PostURL(context.Context, *PostMediaRequest) (*PostMediaResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PostURL not implemented")
+}
+func (UnimplementedPresignedURLServer) mustEmbedUnimplementedPresignedURLServer() {}
+
+// UnsafePresignedURLServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to PresignedURLServer will
+// result in compilation errors.
+type UnsafePresignedURLServer interface {
+	mustEmbedUnimplementedPresignedURLServer()
+}
+
+func RegisterPresignedURLServer(s grpc.ServiceRegistrar, srv PresignedURLServer) {
+	s.RegisterService(&PresignedURL_ServiceDesc, srv)
+}
+
+func _PresignedURL_PostURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PostMediaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(PresignedURLServer).PostURL(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: PresignedURL_PostURL_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(PresignedURLServer).PostURL(ctx, req.(*PostMediaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// PresignedURL_ServiceDesc is the grpc.ServiceDesc for PresignedURL service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var PresignedURL_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "main.PresignedURL",
+	HandlerType: (*PresignedURLServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "PostURL",
+			Handler:    _PresignedURL_PostURL_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "internal/proto/anniedad.proto",
+}

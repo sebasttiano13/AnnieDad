@@ -14,6 +14,8 @@ type AuthRepo interface {
 	AddUser(ctx context.Context, user *models.User) error
 }
 
+type MediaRepo interface{}
+
 type AuthService struct {
 	Repo AuthRepo
 }
@@ -22,10 +24,10 @@ func NewAuthService(repo AuthRepo) *AuthService {
 	return &AuthService{Repo: repo}
 }
 
-func (a *AuthService) Register(ctx context.Context, name, password string) error {
-	return nil
+type MediaService struct {
+	Repo MediaRepo
 }
 
-func (a *AuthService) Login(ctx context.Context, name, password string) (int, error) {
-	return 0, nil
+func NewMediaService(repo MediaRepo) *MediaService {
+	return &MediaService{Repo: repo}
 }

@@ -7,7 +7,7 @@ import (
 
 // LoggerConfig stores logger level and file if needed to log into
 type LoggerConfig struct {
-	Level string `default:"debug" env:"LOG_LEVEL" yaml:"level"`
+Level string `default:"debug" env:"LOG_LEVEL" yaml:"level"`
 	File  string `default:""      env:"LOG_FILE"  yaml:"file"`
 }
 

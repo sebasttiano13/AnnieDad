@@ -49,6 +49,9 @@ func NewGRPSServer(settings *GRPSServerSettings, db *sqlx.DB) *GRPSServer {
 		Auth: service.NewAuthService(repo),
 	})
 
+	pb.RegisterPresignedURLServer(s, &handlers.MediaServer{
+		Media: service.NewMediaService(repo),
+	})
 	return &GRPSServer{
 		srv: s,
 	}

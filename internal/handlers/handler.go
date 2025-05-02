@@ -15,7 +15,16 @@ type AuthServer struct {
 	pb.UnimplementedAuthServer
 }
 
+type MediaServer struct {
+	Media MediaServ
+	pb.UnimplementedPresignedURLServer
+}
+
 type Authenticator interface {
 	Register(ctx context.Context, name, password string) error
 	Login(ctx context.Context, name, password string) (int, error)
+}
+
+type MediaServ interface {
+	PostURL(ctx context.Context, fileName string) (string, error)
 }
