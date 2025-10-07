@@ -8,3 +8,4 @@
 internal/config/anniedad.yaml
 
 examples/
+.env

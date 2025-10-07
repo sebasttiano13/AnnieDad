@@ -2,18 +2,18 @@ package server
 
 import (
 	"context"
-	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
-	"github.com/jmoiron/sqlx"
-	"github.com/sebasttiano13/AnnieDad/internal/handlers"
-	pb "github.com/sebasttiano13/AnnieDad/internal/proto"
-	"github.com/sebasttiano13/AnnieDad/internal/repository"
-	"github.com/sebasttiano13/AnnieDad/internal/service"
-	"github.com/sebasttiano13/AnnieDad/pkg/logger"
-	"google.golang.org/grpc"
 	"net"
 	"os"
 	"sync"
 	"time"
+
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
+	"github.com/sebasttiano13/AnnieDad/internal/handlers"
+	pb "github.com/sebasttiano13/AnnieDad/internal/proto"
+	"github.com/sebasttiano13/AnnieDad/internal/service"
+	"github.com/sebasttiano13/AnnieDad/pkg/clients"
+	"github.com/sebasttiano13/AnnieDad/pkg/logger"
+	"google.golang.org/grpc"
 )
 
 // GRPSServerSettings stores server settings
@@ -30,8 +30,12 @@ type GRPSServer struct {
 }
 
 // NewGRPSServer init all interceptors, load TLS, registers services and returns GRPSServer
-func NewGRPSServer(settings *GRPSServerSettings, db *sqlx.DB) *GRPSServer {
-	repo := repository.NewDBStorage(db)
+func NewGRPSServer(
+	settings *GRPSServerSettings,
+	auth service.AuthRepo,
+	media service.MediaRepo,
+	s3 *clients.S3Client,
+) *GRPSServer {
 
 	tlsCredentials, err := loadTLSCredentials(settings.CertFile, settings.CertKey)
 	if err != nil {
@@ -46,11 +50,11 @@ func NewGRPSServer(settings *GRPSServerSettings, db *sqlx.DB) *GRPSServer {
 	)
 
 	pb.RegisterAuthServer(s, &handlers.AuthServer{
-		Auth: service.NewAuthService(repo),
+		Auth: service.NewAuthService(auth),
 	})
 
 	pb.RegisterPresignedURLServer(s, &handlers.MediaServer{
-		Media: service.NewMediaService(repo),
+		Media: service.NewMediaService(media, s3),
 	})
 	return &GRPSServer{
 		srv: s,
