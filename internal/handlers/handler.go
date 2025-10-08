@@ -18,7 +18,7 @@ type AuthServer struct {
 
 type MediaServer struct {
 	Media MediaServ
-	pb.UnimplementedPresignedURLServer
+	pb.UnimplementedMediaServer
 }
 
 type Authenticator interface {
@@ -28,4 +28,5 @@ type Authenticator interface {
 
 type MediaServ interface {
 	PostURL(ctx context.Context, fileName string) (string, error)
+	GetUploadURL(ctx context.Context, fileName string) (string, error)
 }

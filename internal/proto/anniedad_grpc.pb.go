@@ -147,89 +147,163 @@ var Auth_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	PresignedURL_PostURL_FullMethodName = "/main.PresignedURL/PostURL"
+	Media_PostURL_FullMethodName    = "/main.Media/PostURL"
+	Media_GetURL_FullMethodName     = "/main.Media/GetURL"
+	Media_GetListURL_FullMethodName = "/main.Media/GetListURL"
 )
 
-// PresignedURLClient is the client API for PresignedURL service.
+// MediaClient is the client API for Media service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type PresignedURLClient interface {
+type MediaClient interface {
 	PostURL(ctx context.Context, in *PostMediaRequest, opts ...grpc.CallOption) (*PostMediaResponse, error)
+	GetURL(ctx context.Context, in *GetMediaRequest, opts ...grpc.CallOption) (*GetMediaResponse, error)
+	GetListURL(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMediaResponse, error)
 }
 
-type presignedURLClient struct {
+type mediaClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewPresignedURLClient(cc grpc.ClientConnInterface) PresignedURLClient {
-	return &presignedURLClient{cc}
+func NewMediaClient(cc grpc.ClientConnInterface) MediaClient {
+	return &mediaClient{cc}
 }
 
-func (c *presignedURLClient) PostURL(ctx context.Context, in *PostMediaRequest, opts ...grpc.CallOption) (*PostMediaResponse, error) {
+func (c *mediaClient) PostURL(ctx context.Context, in *PostMediaRequest, opts ...grpc.CallOption) (*PostMediaResponse, error) {
 	out := new(PostMediaResponse)
-	err := c.cc.Invoke(ctx, PresignedURL_PostURL_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Media_PostURL_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// PresignedURLServer is the server API for PresignedURL service.
-// All implementations must embed UnimplementedPresignedURLServer
+func (c *mediaClient) GetURL(ctx context.Context, in *GetMediaRequest, opts ...grpc.CallOption) (*GetMediaResponse, error) {
+	out := new(GetMediaResponse)
+	err := c.cc.Invoke(ctx, Media_GetURL_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *mediaClient) GetListURL(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMediaResponse, error) {
+	out := new(GetMediaResponse)
+	err := c.cc.Invoke(ctx, Media_GetListURL_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// MediaServer is the server API for Media service.
+// All implementations must embed UnimplementedMediaServer
 // for forward compatibility
-type PresignedURLServer interface {
+type MediaServer interface {
 	PostURL(context.Context, *PostMediaRequest) (*PostMediaResponse, error)
-	mustEmbedUnimplementedPresignedURLServer()
+	GetURL(context.Context, *GetMediaRequest) (*GetMediaResponse, error)
+	GetListURL(context.Context, *emptypb.Empty) (*GetMediaResponse, error)
+	mustEmbedUnimplementedMediaServer()
 }
 
-// UnimplementedPresignedURLServer must be embedded to have forward compatible implementations.
-type UnimplementedPresignedURLServer struct {
+// UnimplementedMediaServer must be embedded to have forward compatible implementations.
+type UnimplementedMediaServer struct {
 }
 
-func (UnimplementedPresignedURLServer) PostURL(context.Context, *PostMediaRequest) (*PostMediaResponse, error) {
+func (UnimplementedMediaServer) PostURL(context.Context, *PostMediaRequest) (*PostMediaResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method PostURL not implemented")
 }
-func (UnimplementedPresignedURLServer) mustEmbedUnimplementedPresignedURLServer() {}
+func (UnimplementedMediaServer) GetURL(context.Context, *GetMediaRequest) (*GetMediaResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetURL not implemented")
+}
+func (UnimplementedMediaServer) GetListURL(context.Context, *emptypb.Empty) (*GetMediaResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetListURL not implemented")
+}
+func (UnimplementedMediaServer) mustEmbedUnimplementedMediaServer() {}
 
-// UnsafePresignedURLServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to PresignedURLServer will
+// UnsafeMediaServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to MediaServer will
 // result in compilation errors.
-type UnsafePresignedURLServer interface {
-	mustEmbedUnimplementedPresignedURLServer()
+type UnsafeMediaServer interface {
+	mustEmbedUnimplementedMediaServer()
 }
 
-func RegisterPresignedURLServer(s grpc.ServiceRegistrar, srv PresignedURLServer) {
-	s.RegisterService(&PresignedURL_ServiceDesc, srv)
+func RegisterMediaServer(s grpc.ServiceRegistrar, srv MediaServer) {
+	s.RegisterService(&Media_ServiceDesc, srv)
 }
 
-func _PresignedURL_PostURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Media_PostURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PostMediaRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(PresignedURLServer).PostURL(ctx, in)
+		return srv.(MediaServer).PostURL(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: PresignedURL_PostURL_FullMethodName,
+		FullMethod: Media_PostURL_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(PresignedURLServer).PostURL(ctx, req.(*PostMediaRequest))
+		return srv.(MediaServer).PostURL(ctx, req.(*PostMediaRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// PresignedURL_ServiceDesc is the grpc.ServiceDesc for PresignedURL service.
+func _Media_GetURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMediaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MediaServer).GetURL(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Media_GetURL_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MediaServer).GetURL(ctx, req.(*GetMediaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Media_GetListURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(emptypb.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MediaServer).GetListURL(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Media_GetListURL_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MediaServer).GetListURL(ctx, req.(*emptypb.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Media_ServiceDesc is the grpc.ServiceDesc for Media service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var PresignedURL_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "main.PresignedURL",
-	HandlerType: (*PresignedURLServer)(nil),
+var Media_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "main.Media",
+	HandlerType: (*MediaServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "PostURL",
-			Handler:    _PresignedURL_PostURL_Handler,
+			Handler:    _Media_PostURL_Handler,
+		},
+		{
+			MethodName: "GetURL",
+			Handler:    _Media_GetURL_Handler,
+		},
+		{
+			MethodName: "GetListURL",
+			Handler:    _Media_GetListURL_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

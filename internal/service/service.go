@@ -35,5 +35,6 @@ func NewMediaService(repo MediaRepo, s3client S3) *MediaService {
 }
 
 type S3 interface {
-	GetUploadURL(ctx context.Context, bucket string, key string) (string, error)
+	DownloadURL(ctx context.Context, bucket string, key string) (string, error)
+	UploadURL(ctx context.Context, bucket string, key string) (string, error)
 }

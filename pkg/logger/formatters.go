@@ -15,40 +15,56 @@ const (
 
 var contextValues = []CTXValue{ContextEventID, ContextRequestID}
 
-func Debugf(fsting string, formaters ...any) {
-	slog.Default().Debug(fmt.Sprintf(fsting, formaters...))
+func Debug(str string) {
+	slog.Default().Debug(str)
 }
 
-func Infof(fsting string, formaters ...any) {
-	slog.Default().Info(fmt.Sprintf(fsting, formaters...))
+func Info(str string) {
+	slog.Default().Info(str)
 }
 
-func Warningf(fsting string, formaters ...any) {
-	slog.Default().Warn(fmt.Sprintf(fsting, formaters...))
+func Warning(str string) {
+	slog.Default().Warn(str)
 }
 
-func Errorf(fsting string, formaters ...any) {
-	slog.Default().Error(fmt.Sprintf(fsting, formaters...))
+func Error(str string) {
+	slog.Default().Error(str)
 }
 
-func DebugfContext(ctx context.Context, fsting string, formaters ...any) {
+func Debugf(fstring string, formaters ...any) {
+	slog.Default().Debug(fmt.Sprintf(fstring, formaters...))
+}
+
+func Infof(fstring string, formaters ...any) {
+	slog.Default().Info(fmt.Sprintf(fstring, formaters...))
+}
+
+func Warningf(fstring string, formaters ...any) {
+	slog.Default().Warn(fmt.Sprintf(fstring, formaters...))
+}
+
+func Errorf(fstring string, formaters ...any) {
+	slog.Default().Error(fmt.Sprintf(fstring, formaters...))
+}
+
+func DebugfContext(ctx context.Context, fstring string, formaters ...any) {
 	logger := addAttrsToLogger(ctx, slog.Default())
-	logger.Debug(fmt.Sprintf(fsting, formaters...))
+	logger.Debug(fmt.Sprintf(fstring, formaters...))
 }
 
-func InfofContext(ctx context.Context, fsting string, formaters ...any) {
+func InfofContext(ctx context.Context, fstring string, formaters ...any) {
 	logger := addAttrsToLogger(ctx, slog.Default())
-	logger.Info(fmt.Sprintf(fsting, formaters...))
+	logger.Info(fmt.Sprintf(fstring, formaters...))
 }
 
-func WarnfContext(ctx context.Context, fsting string, formaters ...any) {
+func WarnfContext(ctx context.Context, fstring string, formaters ...any) {
 	logger := addAttrsToLogger(ctx, slog.Default())
-	logger.Warn(fmt.Sprintf(fsting, formaters...))
+	logger.Warn(fmt.Sprintf(fstring, formaters...))
 }
 
-func ErrorfContext(ctx context.Context, fsting string, formaters ...any) {
+func ErrorfContext(ctx context.Context, fstring string, formaters ...any) {
 	logger := addAttrsToLogger(ctx, slog.Default())
-	logger.Error(fmt.Sprintf(fsting, formaters...))
+	logger.Error(fmt.Sprintf(fstring, formaters...))
 }
 
 func addAttrsToLogger(ctx context.Context, log *slog.Logger) *slog.Logger {

@@ -53,7 +53,7 @@ func NewGRPSServer(
 		Auth: service.NewAuthService(auth),
 	})
 
-	pb.RegisterPresignedURLServer(s, &handlers.MediaServer{
+	pb.RegisterMediaServer(s, &handlers.MediaServer{
 		Media: service.NewMediaService(media, s3),
 	})
 	return &GRPSServer{

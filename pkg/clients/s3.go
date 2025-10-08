@@ -12,6 +12,7 @@ import (
 
 var (
 	ErrS3Client             = errors.New("s3 client failed")
+	ErrS3ClientGetURL       = errors.New("failed to get presign URL")
 	ErrS3ClientGetUploadURL = errors.New("failed to get presign upload URL")
 )
 
@@ -29,14 +30,25 @@ func NewS3Client(cfg aws.Config, expires time.Duration) *S3Client {
 	return &S3Client{client: client, ExpireURLTime: expires, presigner: presigner}
 }
 
-func (s *S3Client) GetUploadURL(ctx context.Context, bucket string, key string) (string, error) {
+func (s *S3Client) DownloadURL(ctx context.Context, bucket string, key string) (string, error) {
 	presignedReq, err := s.presigner.PresignGetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(bucket),
+		Key:    aws.String(key),
+	}, s3.WithPresignExpires(s.ExpireURLTime))
+	if err != nil {
+		return "", fmt.Errorf("%w: %v", ErrS3ClientGetURL, err)
+	}
+
+	return presignedReq.URL, nil
+}
+
+func (s *S3Client) UploadURL(ctx context.Context, bucket string, key string) (string, error) {
+	presignedReq, err := s.presigner.PresignPutObject(ctx, &s3.PutObjectInput{
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 	}, s3.WithPresignExpires(s.ExpireURLTime))
 	if err != nil {
 		return "", fmt.Errorf("%w: %v", ErrS3ClientGetUploadURL, err)
 	}
-
 	return presignedReq.URL, nil
 }
