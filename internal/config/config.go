@@ -22,8 +22,6 @@ type Cert struct {
 type S3Config struct {
 	Endpoint     string `yaml:"endpoint" env:"DAD_S3_ENDPOINT"`
 	Region       string `yaml:"region" env:"DAD_S3_REGION"`
-	Bucket       string `yaml:"bucket" env:"DAD_S3_BUCKET"`
-	Key          string `yaml:"key"    env:"DAD_S3_KEY"`
 	ExpiresURLIn int    `yaml:"expires_url_in" env:"S3_EXPIRES_URL"`
 	AccessKey    string `yaml:"access_key" env:"DAD_S3_ACCESS_KEY"`
 	SecretKey    string `yaml:"secret_key" env:"DAD_S3_SECRET_KEY"`

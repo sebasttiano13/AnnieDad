@@ -25,6 +25,7 @@ service Auth {
 }
 
 message PostMediaRequest {
+  string filename = 1;
 }
 
 message PostMediaResponse {

@@ -8,7 +8,7 @@ import (
 
 func (m *MediaServer) PostURL(ctx context.Context, in *pb.PostMediaRequest) (*pb.PostMediaResponse, error) {
 
-	url, err := m.Media.PostURL(ctx, "my_file")
+	url, err := m.Media.PostURL(ctx, in.Filename)
 	if err != nil {
 		return nil, err
 	}
