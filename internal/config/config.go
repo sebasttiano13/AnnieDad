@@ -56,11 +56,13 @@ func (d *DadConfig) GetGRPSAddress() string {
 }
 
 type GRPSServerConfig struct {
-	Host          string `yaml:"host" env:"SERVER_HOST" env-default:"localhost"`
-	Port          int    `yaml:"port" env:"SERVER_PORT" env-default:"8081"`
-	Secure        bool   `yaml:"secure" env:"SERVER_SECURE" env-default:"false"`
-	Secret        string `yaml:"secret" env:"SERVER_SECRET" env-default:""`
-	TokenDuration int    `yaml:"token_duration" env:"TOKEN_DURATION" env-default:"300"`
+	Host                 string `yaml:"host" env:"SERVER_HOST" env-default:"localhost"`
+	Port                 int    `yaml:"port" env:"SERVER_PORT" env-default:"8081"`
+	Secure               bool   `yaml:"secure" env:"SERVER_SECURE" env-default:"false"`
+	AccessSecret         string `yaml:"access_secret" env:"SERVER_ACCESS_SECRET" env-default:""`
+	RefreshSecret        string `yaml:"refresh_secret" env:"SERVER_REFRESH_SECRET" env-default:""`
+	AccessTokenDuration  int    `yaml:"access_token_duration" env:"ACCESS_TOKEN_DURATION" env-default:"300"`
+	RefreshTokenDuration int    `yaml:"refresh_token_duration" env:"REFRESH_TOKEN_DURATION" env-default:"300"`
 }
 
 // NewDadConfig is a constructor for DadConfig

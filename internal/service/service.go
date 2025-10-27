@@ -2,23 +2,31 @@ package service
 
 import (
 	"context"
+	"errors"
 
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/sebasttiano13/AnnieDad/internal/models"
+	"github.com/sebasttiano13/AnnieDad/pkg/jwt"
 )
 
 // pgError алиас для *pgconn.PgError
 var pgError *pgconn.PgError
 
+var ErrInternalAuthService = errors.New("auth service internal error")
+
 type AuthRepo interface {
-	GetUser(ctx context.Context, user *models.User) error
+	GetByUsername(ctx context.Context, user *models.User) error
+	GetByTelegramID(ctx context.Context, user *models.User) error
 	AddUser(ctx context.Context, user *models.User) error
+	AddBotUser(ctx context.Context, user *models.User) error
+	LinkTelegramUser(ctx context.Context, user *models.User) error
 }
 
 type MediaRepo interface{}
 
 type AuthService struct {
-	Repo AuthRepo
+	Repo       AuthRepo
+	jwtManager *jwt.JWTManager
 }
 
 func NewAuthService(repo AuthRepo) *AuthService {

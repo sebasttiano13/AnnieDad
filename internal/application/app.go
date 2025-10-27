@@ -53,10 +53,12 @@ func Run(ctx context.Context, cfgPath string) error {
 
 	s3client := clients.NewS3Client(awsConfig, time.Duration(cfg.S3Cfg.ExpiresURLIn)*time.Minute)
 	settings := &server.GRPSServerSettings{
-		SecretKey:     cfg.GRPSServerCfg.Secret,
-		TokenDuration: time.Duration(cfg.GRPSServerCfg.TokenDuration) * time.Second,
-		CertFile:      cfg.Cert.Cert,
-		CertKey:       cfg.Cert.Key,
+		AccessSecretKey:      cfg.GRPSServerCfg.AccessSecret,
+		RefreshSecretKey:     cfg.GRPSServerCfg.RefreshSecret,
+		AccessTokenDuration:  time.Duration(cfg.GRPSServerCfg.AccessTokenDuration) * time.Second,
+		RefreshTokenDuration: time.Duration(cfg.GRPSServerCfg.RefreshTokenDuration) * time.Second,
+		CertFile:             cfg.Cert.Cert,
+		CertKey:              cfg.Cert.Key,
 	}
 
 	grpcSrv := server.NewGRPSServer(settings, repo, repo, s3client)
