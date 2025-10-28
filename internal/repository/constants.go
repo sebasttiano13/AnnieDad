@@ -13,3 +13,11 @@ const (
 	UserEmail        = "email"
 	UserRegisteredAT = "registered_at"
 )
+
+// api_client table fields
+const (
+	ApiClientID        = "id"
+	ApiClientName      = "name"
+	ApiClientToken     = "token"
+	ApiClientCreatedAt = "created_at"
+)

@@ -6,15 +6,14 @@ import (
 
 	pbMedia "github.com/sebasttiano13/AnnieDad/internal/proto/anniedad"
 	pbAuth "github.com/sebasttiano13/AnnieDad/internal/proto/auth"
-	"github.com/sebasttiano13/AnnieDad/pkg/logger"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
-	"google.golang.org/grpc/status"
 )
 
 var (
-	ErrInternalGrpc       = errors.New("internal grpc server error")
-	ErrGetUserFromContext = errors.New("failed get user id from context")
+	ErrInternalGrpc           = errors.New("internal grpc server error")
+	ErrGetUserFromContext     = errors.New("failed get user id from context")
+	ErrGetApiTokenFromContext = errors.New("failed get api client token from context")
+	ErrNoMetadata             = errors.New("metadata is not provided")
 )
 
 type AuthServer struct {
@@ -51,9 +50,25 @@ type MediaServ interface {
 var getUserIDFromContext = func(ctx context.Context) (string, error) {
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		logger.Error(ErrGetUserFromContext.Error())
-		return "", status.Errorf(codes.Internal, ErrInternalGrpc.Error())
+		return "", ErrNoMetadata
 	}
-	userID := md.Get("user-id")[0]
+	keys := md.Get("keys")
+	if len(keys) == 0 {
+		return "", ErrGetUserFromContext
+	}
+	userID := keys[0]
 	return userID, nil
+}
+
+var getApiClientTokenFromContext = func(ctx context.Context) (string, error) {
+	md, ok := metadata.FromIncomingContext(ctx)
+	if !ok {
+		return "", ErrNoMetadata
+	}
+	key := md.Get("x-api-key")
+	if len(key) == 0 {
+		return "", ErrGetApiTokenFromContext
+	}
+	token := key[0]
+	return token, nil
 }

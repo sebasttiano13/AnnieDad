@@ -61,7 +61,7 @@ func Run(ctx context.Context, cfgPath string) error {
 		CertKey:              cfg.Cert.Key,
 	}
 
-	grpcSrv := server.NewGRPSServer(settings, repo, repo, s3client)
+	grpcSrv := server.NewGRPSServer(settings, repo, repo, repo, s3client)
 
 	wg.Add(1)
 	go grpcSrv.Start(cfg.GetGRPSAddress())

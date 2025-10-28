@@ -11,6 +11,7 @@ import (
 	"github.com/sebasttiano13/AnnieDad/internal/handlers"
 	pbMedia "github.com/sebasttiano13/AnnieDad/internal/proto/anniedad"
 	pbAuth "github.com/sebasttiano13/AnnieDad/internal/proto/auth"
+	"github.com/sebasttiano13/AnnieDad/internal/repository"
 	"github.com/sebasttiano13/AnnieDad/internal/service"
 	"github.com/sebasttiano13/AnnieDad/pkg/clients"
 	"github.com/sebasttiano13/AnnieDad/pkg/jwt"
@@ -37,6 +38,7 @@ type GRPSServer struct {
 func NewGRPSServer(
 	settings *GRPSServerSettings,
 	repo service.AuthRepo,
+	repoApiKey repository.ApiKeyRepo,
 	media service.MediaRepo,
 	s3 *clients.S3Client,
 ) *GRPSServer {
@@ -46,12 +48,15 @@ func NewGRPSServer(
 		logger.Errorf("cannot load TLS credentials: %v", err)
 	}
 	jwtManager := jwt.NewJWTManager(settings.AccessSecretKey, settings.RefreshSecretKey, settings.AccessTokenDuration, settings.RefreshTokenDuration)
+	apiKeyChecker := repository.NewDBApiKeyChecker(repoApiKey)
+	apiKeyInterceptor := handlers.NewApiKeyInterceptor(apiKeyChecker)
 	authInterceptor := handlers.NewAuthInterceptor(jwtManager)
 
 	s := grpc.NewServer(
 		grpc.Creds(tlsCredentials),
 		grpc.ChainUnaryInterceptor(
 			logging.UnaryServerInterceptor(handlers.InterceptorLogger(logger.GetDefault())),
+			apiKeyInterceptor.Unary(),
 			authInterceptor.Unary(),
 		),
 	)

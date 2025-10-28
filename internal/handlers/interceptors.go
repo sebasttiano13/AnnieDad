@@ -14,7 +14,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-var ErrNoMetadata = errors.New("metadata is not provided")
 var ErrNoAccessToken = errors.New("authorization token is not provided")
 
 // InterceptorLogger logging all incoming requests
@@ -110,4 +109,47 @@ func (i *AuthInterceptor) authorize(ctx context.Context, method string) (context
 
 	newCtx := metadata.NewIncomingContext(ctx, md)
 	return newCtx, nil
+}
+
+type ApiKeyChecker interface {
+	Validate(ctx context.Context, token string) (bool, error)
+}
+type ApiKeyInterceptor struct {
+	checker ApiKeyChecker
+}
+
+func NewApiKeyInterceptor(checker ApiKeyChecker) *ApiKeyInterceptor {
+	return &ApiKeyInterceptor{checker: checker}
+}
+
+func (i *ApiKeyInterceptor) Unary() grpc.UnaryServerInterceptor {
+	return func(ctx context.Context, req interface{},
+		info *grpc.UnaryServerInfo,
+		handler grpc.UnaryHandler,
+	) (interface{}, error) {
+
+		apiKey, err := getApiClientTokenFromContext(ctx)
+		if err != nil {
+			if errors.Is(err, ErrGetApiTokenFromContext) {
+				// No api key, pass to next interceptor
+				logger.Debugf("no api key found in context, passing next interceptor")
+				return handler(ctx, req)
+			}
+			logger.Debugf("api key check error: %v", err)
+			return nil, status.Error(codes.Unauthenticated, err.Error())
+		}
+
+		valid, err := i.checker.Validate(ctx, apiKey)
+		if err != nil {
+			logger.Debugf("api key check error: %v", err)
+			return nil, status.Error(codes.Internal, "failed to check api key")
+		}
+		if !valid {
+			logger.Debugf("api key %s is invalid", apiKey)
+			return nil, status.Error(codes.PermissionDenied, "invalid api key")
+		}
+
+		newCtx := context.WithValue(ctx, "api-client", true)
+		return handler(newCtx, req)
+	}
 }
