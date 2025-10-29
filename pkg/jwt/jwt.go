@@ -72,7 +72,7 @@ func (j *JWTManager) GenerateToken(id string, tokenType JWTTokenType) (string, e
 		},
 		ID: id,
 	})
-	newToken, err := token.SignedString(secret)
+	newToken, err := token.SignedString([]byte(secret))
 	if err != nil {
 		return "", fmt.Errorf("%w: %v", errMessage, err)
 	}

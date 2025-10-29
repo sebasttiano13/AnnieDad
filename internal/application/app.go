@@ -31,8 +31,7 @@ func Run(ctx context.Context, cfgPath string) error {
 		return err
 	}
 
-	var db *sqlx.DB
-	db, err = sqlx.Connect("pgx", cfg.DBCfg.GetDSN())
+	db, err := sqlx.Connect("pgx", cfg.DBCfg.GetDSN())
 	if err != nil {
 		logger.Errorf("database openning failed: %e", err)
 		os.Exit(1)
@@ -55,8 +54,8 @@ func Run(ctx context.Context, cfgPath string) error {
 	settings := &server.GRPSServerSettings{
 		AccessSecretKey:      cfg.GRPSServerCfg.AccessSecret,
 		RefreshSecretKey:     cfg.GRPSServerCfg.RefreshSecret,
-		AccessTokenDuration:  time.Duration(cfg.GRPSServerCfg.AccessTokenDuration) * time.Second,
-		RefreshTokenDuration: time.Duration(cfg.GRPSServerCfg.RefreshTokenDuration) * time.Second,
+		AccessTokenDuration:  time.Duration(cfg.GRPSServerCfg.AccessTokenDuration) * time.Minute,
+		RefreshTokenDuration: time.Duration(cfg.GRPSServerCfg.RefreshTokenDuration) * time.Minute,
 		CertFile:             cfg.Cert.Cert,
 		CertKey:              cfg.Cert.Key,
 	}

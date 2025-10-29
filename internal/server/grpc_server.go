@@ -61,7 +61,7 @@ func NewGRPSServer(
 		),
 	)
 
-	authService := service.NewAuthService(repo)
+	authService := service.NewAuthService(repo, jwtManager)
 	pbAuth.RegisterAuthServiceServer(s, &handlers.AuthServer{
 		BotAuth: authService,
 		Refresh: authService,

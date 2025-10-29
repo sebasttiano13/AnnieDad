@@ -7,8 +7,11 @@ import (
 	"fmt"
 
 	sq "github.com/Masterminds/squirrel"
+	"github.com/google/uuid"
 	"github.com/sebasttiano13/AnnieDad/internal/models"
 )
+
+var ErrBadAPIKeyFormat = errors.New("bad api key format")
 
 type ApiKeyRepo interface {
 	GetApiClient(ctx context.Context, client *models.ApiClient) error
@@ -23,7 +26,15 @@ func NewDBApiKeyChecker(repo ApiKeyRepo) *DBApiKeyChecker {
 }
 
 func (c *DBApiKeyChecker) Validate(ctx context.Context, token string) (bool, error) {
-	client := &models.ApiClient{Token: token}
+
+	_, err := uuid.Parse(token)
+	if err != nil {
+		return false, fmt.Errorf("%w: %v", ErrBadAPIKeyFormat, err)
+	}
+
+	client := &models.ApiClient{
+		Token: token,
+	}
 	if err := c.repo.GetApiClient(ctx, client); err != nil {
 		if errors.Is(err, ErrDBNoRows) {
 			return false, nil
@@ -43,7 +54,7 @@ func (d *DBStorage) GetApiClient(ctx context.Context, client *models.ApiClient) 
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrDBSqlBuilder, err)
 	}
-	if err := d.db.GetContext(ctx, client, query, args); err != nil {
+	if err := d.db.GetContext(ctx, client, query, args...); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ErrDBNoRows
 		}

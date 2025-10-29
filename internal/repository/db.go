@@ -25,7 +25,7 @@ type DBStorage struct {
 
 // NewDBStorage constructor for DBStorage
 func NewDBStorage(d *sqlx.DB) *DBStorage {
-	return &DBStorage{db: d}
+	return &DBStorage{db: d, psql: sq.StatementBuilder.PlaceholderFormat(sq.Dollar)}
 }
 
 // GetByUsername returns user by username and hashed password
@@ -34,7 +34,7 @@ func (d *DBStorage) GetByUsername(ctx context.Context, user *models.User) error 
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrDBSqlBuilder, err)
 	}
-	if err := d.db.GetContext(ctx, user, query, args); err != nil {
+	if err := d.db.GetContext(ctx, user, query, args...); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ErrDBNoRows
 		}
@@ -45,11 +45,11 @@ func (d *DBStorage) GetByUsername(ctx context.Context, user *models.User) error 
 
 // GetByTelegramID returns user by telegram id
 func (d *DBStorage) GetByTelegramID(ctx context.Context, user *models.User) error {
-	query, args, err := d.psql.Select(UserID, UserTelegramID, UserName, UserPassword).From("users").Where(sq.Eq{UserTelegramID: user.TelegramID}).ToSql()
+	query, args, err := d.psql.Select(UserID, UserTelegramID, UserName).From("users").Where(sq.Eq{UserTelegramID: user.TelegramID}).ToSql()
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrDBSqlBuilder, err)
 	}
-	if err := d.db.GetContext(ctx, user, query, args); err != nil {
+	if err := d.db.GetContext(ctx, user, query, args...); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return ErrDBNoRows
 		}
@@ -72,7 +72,7 @@ func (d *DBStorage) AddUser(ctx context.Context, user *models.User) error {
 		return fmt.Errorf("%w: %v", ErrDBTransaction, err)
 	}
 	var id string
-	if err := tx.GetContext(ctx, &id, query, args); err != nil {
+	if err := tx.GetContext(ctx, &id, query, args...); err != nil {
 		tx.Rollback()
 		return fmt.Errorf("%w: %v", ErrDB, err)
 	}
@@ -96,7 +96,7 @@ func (d *DBStorage) AddBotUser(ctx context.Context, user *models.User) error {
 		return fmt.Errorf("%w: %v", ErrDBTransaction, err)
 	}
 	var id string
-	if err := tx.GetContext(ctx, &id, query, args); err != nil {
+	if err := tx.GetContext(ctx, &id, query, args...); err != nil {
 		tx.Rollback()
 		return fmt.Errorf("%w: %v", ErrDB, err)
 	}
@@ -118,7 +118,7 @@ func (d *DBStorage) LinkTelegramUser(ctx context.Context, user *models.User) err
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrDBTransaction, err)
 	}
-	if _, err := tx.ExecContext(ctx, query, args); err != nil {
+	if _, err := tx.ExecContext(ctx, query, args...); err != nil {
 		tx.Rollback()
 		return fmt.Errorf("%w: %v", ErrDB, err)
 	}

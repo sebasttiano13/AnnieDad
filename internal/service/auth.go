@@ -2,11 +2,11 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 
 	"github.com/sebasttiano13/AnnieDad/internal/models"
+	"github.com/sebasttiano13/AnnieDad/internal/repository"
 	"github.com/sebasttiano13/AnnieDad/pkg/jwt"
 	"github.com/sebasttiano13/AnnieDad/pkg/logger"
 )
@@ -30,7 +30,7 @@ func (a *AuthService) LinkTelegramBot(ctx context.Context, bindToken string) err
 func (a *AuthService) LoginBot(ctx context.Context, telegramID int64) (string, string, error) {
 	user := &models.User{TelegramID: telegramID}
 	if err := a.Repo.GetByTelegramID(ctx, user); err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
+		if errors.Is(err, repository.ErrDBNoRows) {
 			logger.Infof("user not found, creating new user for telegramID=%d", telegramID)
 			user = &models.User{
 				TelegramID: telegramID,
@@ -40,9 +40,10 @@ func (a *AuthService) LoginBot(ctx context.Context, telegramID int64) (string, s
 				return "", "", ErrInternalAuthService
 			}
 			logger.Infof("%s created successfully", user)
+		} else {
+			logger.Errorf("user with telegram id %v login failed: %v", telegramID, err)
+			return "", "", fmt.Errorf("%w: %v", ErrLoginFailed, err)
 		}
-		logger.Errorf("user with telegram id %v login failed: %v", telegramID, err)
-		return "", "", fmt.Errorf("%w: %v", ErrLoginFailed, err)
 	}
 
 	return a.generateTokens(user.ID)

@@ -6,6 +6,7 @@ import (
 	"log/slog"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
+	"github.com/sebasttiano13/AnnieDad/internal/repository"
 	"github.com/sebasttiano13/AnnieDad/pkg/jwt"
 	"github.com/sebasttiano13/AnnieDad/pkg/logger"
 	"google.golang.org/grpc"
@@ -54,9 +55,9 @@ type AuthInterceptor struct {
 
 func NewAuthInterceptor(jwtManager *jwt.JWTManager) *AuthInterceptor {
 	return &AuthInterceptor{jwtManager, map[string]bool{
-		"/main.Auth/LoginBot":     true,
-		"/main.Auth/RefreshToken": true,
-		"/main.Auth/LinkWeb":      true,
+		"/main.AuthService/LoginBot":     true,
+		"/main.AuthService/RefreshToken": true,
+		"/main.AuthService/LinkWeb":      true,
 	}}
 }
 
@@ -98,7 +99,7 @@ func (i *AuthInterceptor) authorize(ctx context.Context, method string) (context
 	accessToken := values[0]
 	claims, err := i.jwtManager.VerifyToken(accessToken, jwt.AccessToken)
 	if err != nil {
-		return nil, status.Errorf(codes.Unauthenticated, "%s: %v", jwt.ErrInvalidAccessToken, err)
+		return nil, status.Errorf(codes.Unauthenticated, err.Error())
 	}
 
 	// Set user id to metadata
@@ -131,9 +132,9 @@ func (i *ApiKeyInterceptor) Unary() grpc.UnaryServerInterceptor {
 		apiKey, err := getApiClientTokenFromContext(ctx)
 		if err != nil {
 			if errors.Is(err, ErrGetApiTokenFromContext) {
-				// No api key, pass to next interceptor
-				logger.Debugf("no api key found in context, passing next interceptor")
-				return handler(ctx, req)
+				// No api key meta
+				logger.Errorf(err.Error())
+				return nil, status.Errorf(codes.InvalidArgument, err.Error())
 			}
 			logger.Debugf("api key check error: %v", err)
 			return nil, status.Error(codes.Unauthenticated, err.Error())
@@ -141,6 +142,10 @@ func (i *ApiKeyInterceptor) Unary() grpc.UnaryServerInterceptor {
 
 		valid, err := i.checker.Validate(ctx, apiKey)
 		if err != nil {
+			if errors.Is(err, repository.ErrBadAPIKeyFormat) {
+				logger.Debugf("api key %s check error: %v", apiKey, err)
+				return nil, status.Error(codes.InvalidArgument, err.Error())
+			}
 			logger.Debugf("api key check error: %v", err)
 			return nil, status.Error(codes.Internal, "failed to check api key")
 		}

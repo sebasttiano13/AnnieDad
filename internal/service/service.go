@@ -29,8 +29,8 @@ type AuthService struct {
 	jwtManager *jwt.JWTManager
 }
 
-func NewAuthService(repo AuthRepo) *AuthService {
-	return &AuthService{Repo: repo}
+func NewAuthService(repo AuthRepo, jwtManager *jwt.JWTManager) *AuthService {
+	return &AuthService{Repo: repo, jwtManager: jwtManager}
 }
 
 type MediaService struct {

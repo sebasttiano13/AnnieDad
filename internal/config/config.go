@@ -38,7 +38,10 @@ type DBConfig struct {
 }
 
 func (d *DBConfig) GetDSN() string {
-	return fmt.Sprintf("host=%s user=%s password=%s dbname=%s sslmode=%s", d.Host, d.User, d.Password, d.Name, d.SSLMode)
+	return fmt.Sprintf(
+		"postgres://%s:%s@%s:%d/%s?sslmode=%s",
+		d.User, d.Password, d.Host, d.Port, d.Name, d.SSLMode,
+	)
 }
 
 // DadConfig stores all config for the application
@@ -61,8 +64,8 @@ type GRPSServerConfig struct {
 	Secure               bool   `yaml:"secure" env:"SERVER_SECURE" env-default:"false"`
 	AccessSecret         string `yaml:"access_secret" env:"SERVER_ACCESS_SECRET" env-default:""`
 	RefreshSecret        string `yaml:"refresh_secret" env:"SERVER_REFRESH_SECRET" env-default:""`
-	AccessTokenDuration  int    `yaml:"access_token_duration" env:"ACCESS_TOKEN_DURATION" env-default:"300"`
-	RefreshTokenDuration int    `yaml:"refresh_token_duration" env:"REFRESH_TOKEN_DURATION" env-default:"300"`
+	AccessTokenDuration  int    `yaml:"access_token_duration" env:"ACCESS_TOKEN_DURATION" env-default:"15"`
+	RefreshTokenDuration int    `yaml:"refresh_token_duration" env:"REFRESH_TOKEN_DURATION" env-default:"43200"`
 }
 
 // NewDadConfig is a constructor for DadConfig

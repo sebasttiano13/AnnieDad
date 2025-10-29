@@ -1,16 +1,19 @@
 package models
 
-import "fmt"
+import (
+	"database/sql"
+	"fmt"
+)
 
 type (
 	// User is a client avatar
 	User struct {
 		ID             string
-		TelegramID     int64  `db:"telegram_id"`
-		Name           string `json:"username" db:"username" valid:"required,type(string)"`
-		HashedPassword string `json:"password" db:"password" valid:"required,type(string)"`
-		Email          string `json:"email" db:"email" valid:"email"`
-		RegisteredAT   string `db:"registered_at"`
+		TelegramID     int64          `db:"telegram_id"`
+		Name           sql.NullString `json:"username" db:"username" valid:"required,type(string)"`
+		HashedPassword string         `json:"password" db:"password" valid:"required,type(string)"`
+		Email          sql.NullString `json:"email" db:"email" valid:"email"`
+		RegisteredAT   string         `db:"registered_at"`
 	}
 	// ApiClient is an apps for clients
 	ApiClient struct {
