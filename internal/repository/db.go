@@ -85,8 +85,8 @@ func (d *DBStorage) AddUser(ctx context.Context, user *models.User) error {
 // AddBotUser creates new user via telegram id
 func (d *DBStorage) AddBotUser(ctx context.Context, user *models.User) error {
 	query, args, err := d.psql.Insert("users").
-		Columns(UserTelegramID).
-		Values(user.TelegramID).
+		Columns(UserTelegramID, UserName).
+		Values(user.TelegramID, user.Name).
 		Suffix("RETURNING id").ToSql()
 	if err != nil {
 		return fmt.Errorf("%w: %v", ErrDBSqlBuilder, err)
@@ -98,7 +98,7 @@ func (d *DBStorage) AddBotUser(ctx context.Context, user *models.User) error {
 	var id string
 	if err := tx.GetContext(ctx, &id, query, args...); err != nil {
 		tx.Rollback()
-		return fmt.Errorf("%w: %v", ErrDB, err)
+		return err
 	}
 	user.ID = id
 

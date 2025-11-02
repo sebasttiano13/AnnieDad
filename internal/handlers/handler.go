@@ -28,13 +28,14 @@ type MediaServer struct {
 }
 
 type WebAuthenticator interface {
-	Register(ctx context.Context, name, password string) (string, string, error)
+	RegisterWeb(ctx context.Context, name, password string) (string, string, error)
 	LoginWeb(ctx context.Context, name, password string) (string, string, error)
 	LinkTelegramBot(ctx context.Context, bindToken string) error
 }
 
 type BotAuthenticator interface {
-	LoginBot(ctx context.Context, telegramID int64) (string, string, error)
+	RegisterTelegram(ctx context.Context, telegramID int64, name string) (string, string, error)
+	LoginTelegram(ctx context.Context, telegramID int64) (string, string, error)
 	LinkWeb(ctx context.Context, bindToken string) error
 }
 

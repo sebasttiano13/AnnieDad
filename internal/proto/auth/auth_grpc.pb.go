@@ -20,16 +20,18 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	AuthService_LoginBot_FullMethodName     = "/main.AuthService/LoginBot"
-	AuthService_RefreshToken_FullMethodName = "/main.AuthService/RefreshToken"
-	AuthService_LinkWeb_FullMethodName      = "/main.AuthService/LinkWeb"
+	AuthService_RegisterTelegram_FullMethodName = "/main.AuthService/RegisterTelegram"
+	AuthService_LoginTelegram_FullMethodName    = "/main.AuthService/LoginTelegram"
+	AuthService_RefreshToken_FullMethodName     = "/main.AuthService/RefreshToken"
+	AuthService_LinkWeb_FullMethodName          = "/main.AuthService/LinkWeb"
 )
 
 // AuthServiceClient is the client API for AuthService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type AuthServiceClient interface {
-	LoginBot(ctx context.Context, in *BotLoginRequest, opts ...grpc.CallOption) (*AuthResponse, error)
+	RegisterTelegram(ctx context.Context, in *TelegramRegisterRequest, opts ...grpc.CallOption) (*AuthResponse, error)
+	LoginTelegram(ctx context.Context, in *TelegramLoginRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	RefreshToken(ctx context.Context, in *RefreshRequest, opts ...grpc.CallOption) (*AuthResponse, error)
 	LinkWeb(ctx context.Context, in *LinkWebRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -42,9 +44,18 @@ func NewAuthServiceClient(cc grpc.ClientConnInterface) AuthServiceClient {
 	return &authServiceClient{cc}
 }
 
-func (c *authServiceClient) LoginBot(ctx context.Context, in *BotLoginRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
+func (c *authServiceClient) RegisterTelegram(ctx context.Context, in *TelegramRegisterRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
 	out := new(AuthResponse)
-	err := c.cc.Invoke(ctx, AuthService_LoginBot_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, AuthService_RegisterTelegram_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *authServiceClient) LoginTelegram(ctx context.Context, in *TelegramLoginRequest, opts ...grpc.CallOption) (*AuthResponse, error) {
+	out := new(AuthResponse)
+	err := c.cc.Invoke(ctx, AuthService_LoginTelegram_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,7 +84,8 @@ func (c *authServiceClient) LinkWeb(ctx context.Context, in *LinkWebRequest, opt
 // All implementations must embed UnimplementedAuthServiceServer
 // for forward compatibility
 type AuthServiceServer interface {
-	LoginBot(context.Context, *BotLoginRequest) (*AuthResponse, error)
+	RegisterTelegram(context.Context, *TelegramRegisterRequest) (*AuthResponse, error)
+	LoginTelegram(context.Context, *TelegramLoginRequest) (*AuthResponse, error)
 	RefreshToken(context.Context, *RefreshRequest) (*AuthResponse, error)
 	LinkWeb(context.Context, *LinkWebRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedAuthServiceServer()
@@ -83,8 +95,11 @@ type AuthServiceServer interface {
 type UnimplementedAuthServiceServer struct {
 }
 
-func (UnimplementedAuthServiceServer) LoginBot(context.Context, *BotLoginRequest) (*AuthResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method LoginBot not implemented")
+func (UnimplementedAuthServiceServer) RegisterTelegram(context.Context, *TelegramRegisterRequest) (*AuthResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method RegisterTelegram not implemented")
+}
+func (UnimplementedAuthServiceServer) LoginTelegram(context.Context, *TelegramLoginRequest) (*AuthResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method LoginTelegram not implemented")
 }
 func (UnimplementedAuthServiceServer) RefreshToken(context.Context, *RefreshRequest) (*AuthResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method RefreshToken not implemented")
@@ -105,20 +120,38 @@ func RegisterAuthServiceServer(s grpc.ServiceRegistrar, srv AuthServiceServer) {
 	s.RegisterService(&AuthService_ServiceDesc, srv)
 }
 
-func _AuthService_LoginBot_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(BotLoginRequest)
+func _AuthService_RegisterTelegram_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TelegramRegisterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AuthServiceServer).LoginBot(ctx, in)
+		return srv.(AuthServiceServer).RegisterTelegram(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AuthService_LoginBot_FullMethodName,
+		FullMethod: AuthService_RegisterTelegram_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AuthServiceServer).LoginBot(ctx, req.(*BotLoginRequest))
+		return srv.(AuthServiceServer).RegisterTelegram(ctx, req.(*TelegramRegisterRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AuthService_LoginTelegram_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(TelegramLoginRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AuthServiceServer).LoginTelegram(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AuthService_LoginTelegram_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AuthServiceServer).LoginTelegram(ctx, req.(*TelegramLoginRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -167,8 +200,12 @@ var AuthService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*AuthServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "LoginBot",
-			Handler:    _AuthService_LoginBot_Handler,
+			MethodName: "RegisterTelegram",
+			Handler:    _AuthService_RegisterTelegram_Handler,
+		},
+		{
+			MethodName: "LoginTelegram",
+			Handler:    _AuthService_LoginTelegram_Handler,
 		},
 		{
 			MethodName: "RefreshToken",

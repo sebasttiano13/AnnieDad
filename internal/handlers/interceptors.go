@@ -55,9 +55,10 @@ type AuthInterceptor struct {
 
 func NewAuthInterceptor(jwtManager *jwt.JWTManager) *AuthInterceptor {
 	return &AuthInterceptor{jwtManager, map[string]bool{
-		"/main.AuthService/LoginBot":     true,
-		"/main.AuthService/RefreshToken": true,
-		"/main.AuthService/LinkWeb":      true,
+		"/main.AuthService/LoginTelegram":    true,
+		"/main.AuthService/RefreshToken":     true,
+		"/main.AuthService/RegisterTelegram": true,
+		"/main.AuthService/LinkWeb":          true,
 	}}
 }
 

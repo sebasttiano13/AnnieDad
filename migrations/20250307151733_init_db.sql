@@ -9,7 +9,7 @@ CREATE TABLE IF NOT EXISTS users(
     email VARCHAR(255),
     registered_at timestamp without time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY(id),
-    UNIQUE(telegram_id, username)
+    UNIQUE(telegram_id)
 );
 
 CREATE TABLE IF NOT EXISTS api_clients(

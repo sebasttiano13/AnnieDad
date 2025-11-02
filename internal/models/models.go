@@ -11,7 +11,7 @@ type (
 		ID             string
 		TelegramID     int64          `db:"telegram_id"`
 		Name           sql.NullString `json:"username" db:"username" valid:"required,type(string)"`
-		HashedPassword string         `json:"password" db:"password" valid:"required,type(string)"`
+		HashedPassword sql.NullString `json:"password" db:"password" valid:"required,type(string)"`
 		Email          sql.NullString `json:"email" db:"email" valid:"email"`
 		RegisteredAT   string         `db:"registered_at"`
 	}
@@ -25,5 +25,5 @@ type (
 )
 
 func (u *User) String() string {
-	return fmt.Sprintf("<User id=%s telegram=%d name=%s email=%s>", u.ID, u.TelegramID, u.Name, u.Email)
+	return fmt.Sprintf("<User id=%s telegram=%d name=%s email=%s>", u.ID, u.TelegramID, u.Name.String, u.Email.String)
 }
