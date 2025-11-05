@@ -8,13 +8,14 @@ import (
 
 	sq "github.com/Masterminds/squirrel"
 	"github.com/google/uuid"
+	"github.com/sebasttiano13/AnnieDad/internal/domains"
 	"github.com/sebasttiano13/AnnieDad/internal/models"
 )
 
 var ErrBadAPIKeyFormat = errors.New("bad api key format")
 
 type ApiKeyRepo interface {
-	GetApiClient(ctx context.Context, client *models.ApiClient) error
+	GetApiClient(ctx context.Context, token string) (*domains.ApiClient, error)
 }
 
 type DBApiKeyChecker struct {
@@ -32,10 +33,8 @@ func (c *DBApiKeyChecker) Validate(ctx context.Context, token string) (bool, err
 		return false, fmt.Errorf("%w: %v", ErrBadAPIKeyFormat, err)
 	}
 
-	client := &models.ApiClient{
-		Token: token,
-	}
-	if err := c.repo.GetApiClient(ctx, client); err != nil {
+	_, err = c.repo.GetApiClient(ctx, token)
+	if err != nil {
 		if errors.Is(err, ErrDBNoRows) {
 			return false, nil
 		}
@@ -44,21 +43,23 @@ func (c *DBApiKeyChecker) Validate(ctx context.Context, token string) (bool, err
 	return true, nil
 }
 
-func (d *DBStorage) GetApiClient(ctx context.Context, client *models.ApiClient) error {
+func (d *DBStorage) GetApiClient(ctx context.Context, token string) (*domains.ApiClient, error) {
 	query, args, err := d.psql.Select(
 		ApiClientID,
 		ApiClientName,
 		ApiClientToken,
 		ApiClientCreatedAt).
-		From("api_clients").Where(sq.Eq{ApiClientToken: client.Token}).ToSql()
+		From("api_clients").Where(sq.Eq{ApiClientToken: token}).ToSql()
+
+	client := &models.ApiClientRecord{}
 	if err != nil {
-		return fmt.Errorf("%w: %v", ErrDBSqlBuilder, err)
+		return nil, fmt.Errorf("%w: %v", ErrDBSqlBuilder, err)
 	}
 	if err := d.db.GetContext(ctx, client, query, args...); err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return ErrDBNoRows
+			return nil, ErrDBNoRows
 		}
-		return fmt.Errorf("%w: %v", ErrDB, err)
+		return nil, fmt.Errorf("%w: %v", ErrDB, err)
 	}
-	return nil
+	return apiClientRecordToDomain(client), nil
 }

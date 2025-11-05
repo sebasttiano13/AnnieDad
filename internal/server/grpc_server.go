@@ -5,15 +5,12 @@ import (
 	"net"
 	"os"
 	"sync"
-	"time"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/sebasttiano13/AnnieDad/internal/handlers"
 	pbMedia "github.com/sebasttiano13/AnnieDad/internal/proto/anniedad"
 	pbAuth "github.com/sebasttiano13/AnnieDad/internal/proto/auth"
-	"github.com/sebasttiano13/AnnieDad/internal/repository"
 	"github.com/sebasttiano13/AnnieDad/internal/service"
-	"github.com/sebasttiano13/AnnieDad/pkg/clients"
 	"github.com/sebasttiano13/AnnieDad/pkg/jwt"
 	"github.com/sebasttiano13/AnnieDad/pkg/logger"
 	"google.golang.org/grpc"
@@ -21,12 +18,11 @@ import (
 
 // GRPSServerSettings stores server settings
 type GRPSServerSettings struct {
-	AccessSecretKey      string
-	RefreshSecretKey     string
-	AccessTokenDuration  time.Duration
-	RefreshTokenDuration time.Duration
-	CertFile             string
-	CertKey              string
+	AccessSecretKey  string
+	RefreshSecretKey string
+	CertFile         string
+	CertKey          string
+	//TokensOpts       service.TokensOpts
 }
 
 // GRPSServer implements gRPC server.
@@ -37,18 +33,17 @@ type GRPSServer struct {
 // NewGRPSServer init all interceptors, load TLS, registers services and returns GRPSServer
 func NewGRPSServer(
 	settings *GRPSServerSettings,
-	repo service.AuthRepo,
-	repoApiKey repository.ApiKeyRepo,
-	media service.MediaRepo,
-	s3 *clients.S3Client,
+	authService *service.AuthService,
+	mediaService *service.MediaService,
+	apiKeyChecker handlers.ApiKeyChecker,
+	jwtManager *jwt.JWTManager,
 ) *GRPSServer {
 
 	tlsCredentials, err := loadTLSCredentials(settings.CertFile, settings.CertKey)
 	if err != nil {
 		logger.Errorf("cannot load TLS credentials: %v", err)
 	}
-	jwtManager := jwt.NewJWTManager(settings.AccessSecretKey, settings.RefreshSecretKey, settings.AccessTokenDuration, settings.RefreshTokenDuration)
-	apiKeyChecker := repository.NewDBApiKeyChecker(repoApiKey)
+
 	apiKeyInterceptor := handlers.NewApiKeyInterceptor(apiKeyChecker)
 	authInterceptor := handlers.NewAuthInterceptor(jwtManager)
 
@@ -61,14 +56,13 @@ func NewGRPSServer(
 		),
 	)
 
-	authService := service.NewAuthService(repo, jwtManager)
 	pbAuth.RegisterAuthServiceServer(s, &handlers.AuthServer{
 		BotAuth: authService,
 		Refresh: authService,
 	})
 
 	pbMedia.RegisterMediaServer(s, &handlers.MediaServer{
-		Media: service.NewMediaService(media, s3),
+		Media: mediaService,
 	})
 	return &GRPSServer{
 		srv: s,

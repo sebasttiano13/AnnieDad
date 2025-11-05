@@ -21,3 +21,14 @@ const (
 	ApiClientToken     = "token"
 	ApiClientCreatedAt = "created_at"
 )
+
+// refresh_tokens table fields
+
+const (
+	RefreshID        = "id"
+	RefreshUserID    = "user_id"
+	RefreshToken     = "token"
+	RefreshIssuedAt  = "issued_at"
+	RefreshExpiresAt = "expires_at"
+	RefreshRevoked   = "revoked"
+)

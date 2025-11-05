@@ -26,88 +26,106 @@ var (
 )
 
 type JWTManager struct {
-	accessSecretKey      string
-	refreshSecret        string
-	accessTokenDuration  time.Duration
-	refreshTokenDuration time.Duration
+	accessSecretKey  string
+	refreshSecretKey string
 }
 
 func NewJWTManager(
 	accessSecretKey string,
 	refreshSecretKey string,
-	accessTokenDuration time.Duration,
-	refreshTokenDuration time.Duration,
 ) *JWTManager {
-	return &JWTManager{accessSecretKey, refreshSecretKey, accessTokenDuration, refreshTokenDuration}
+	return &JWTManager{accessSecretKey, refreshSecretKey}
 }
 
-type Claims struct {
+type AccessTokenClaims struct {
 	jwt.RegisteredClaims
 	ID string `json:"id"`
 }
 
-func (j *JWTManager) GenerateToken(id string, tokenType JWTTokenType) (string, error) {
-	var errMessage = ErrJWTManager
-	var expiration time.Time
-	var secret string
-	switch tokenType {
-	case AccessToken:
-		expiration = time.Now().Add(j.accessTokenDuration)
-		secret = j.accessSecretKey
-		errMessage = ErrAccessTokenCreationFailed
-	case RefreshToken:
-		expiration = time.Now().Add(j.refreshTokenDuration)
-		secret = j.refreshSecret
-		errMessage = ErrRefreshTokenCreationFailed
-	default:
-		return "", fmt.Errorf("%w: unknown token type", errMessage)
-	}
+type RefreshTokenClaims struct {
+	jwt.RegisteredClaims
+	ID      string `json:"id"`
+	TokenID string `json:"token_id"`
+}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
+func (j *JWTManager) GenerateAccessToken(userID string, duration time.Duration) (string, error) {
+	expiration := time.Now().Add(duration)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, AccessTokenClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiration),
-			Subject:   id,
+			Subject:   userID,
 			Issuer:    "localhost:8080/api/user/login",
 			Audience:  []string{"localhost:8080"},
 		},
-		ID: id,
+		ID: userID,
 	})
-	newToken, err := token.SignedString([]byte(secret))
+	newToken, err := token.SignedString([]byte(j.accessSecretKey))
 	if err != nil {
-		return "", fmt.Errorf("%w: %v", errMessage, err)
+		return "", fmt.Errorf("%w: %v", ErrAccessTokenCreationFailed, err)
 	}
 	return newToken, nil
 }
 
-func (j *JWTManager) VerifyToken(checkToken string, tokenType JWTTokenType) (*Claims, error) {
-	var errMessage = ErrJWTManager
-	var secret string
-	switch tokenType {
-	case AccessToken:
-		secret = j.accessSecretKey
-		errMessage = ErrInvalidAccessToken
-	case RefreshToken:
-		secret = j.refreshSecret
-		errMessage = ErrInvalidRefreshToken
-	default:
-		return nil, fmt.Errorf("%w: unknown token type", errMessage)
+func (j *JWTManager) GenerateRefreshToken(userID, tokenID string, duration time.Duration) (string, error) {
+	expiration := time.Now().Add(duration)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, RefreshTokenClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expiration),
+			Subject:   userID,
+			Issuer:    "localhost:8080/api/user/login",
+			Audience:  []string{"localhost:8080"},
+		},
+		ID:      userID,
+		TokenID: tokenID,
+	})
+	newToken, err := token.SignedString([]byte(j.refreshSecretKey))
+	if err != nil {
+		return "", fmt.Errorf("%w: %v", ErrRefreshTokenCreationFailed, err)
 	}
+	return newToken, nil
+}
+
+func (j *JWTManager) VerifyAccessToken(checkToken string) (*AccessTokenClaims, error) {
 	token, err := jwt.ParseWithClaims(
 		checkToken,
-		&Claims{},
+		&AccessTokenClaims{},
 		func(token *jwt.Token) (interface{}, error) {
 			_, ok := token.Method.(*jwt.SigningMethodHMAC)
 			if !ok {
 				return nil, ErrTokenMethod
 			}
 
-			return []byte(secret), nil
+			return []byte(j.accessSecretKey), nil
 		},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("%w: %v", errMessage, err)
+		return nil, fmt.Errorf("%w: %v", ErrInvalidAccessToken, err)
 	}
-	claims, ok := token.Claims.(*Claims)
+	claims, ok := token.Claims.(*AccessTokenClaims)
+	if !ok {
+		return nil, ErrInvalidTokenClaims
+	}
+
+	return claims, nil
+}
+
+func (j *JWTManager) VerifyRefreshToken(checkToken string) (*RefreshTokenClaims, error) {
+	token, err := jwt.ParseWithClaims(
+		checkToken,
+		&RefreshTokenClaims{},
+		func(token *jwt.Token) (interface{}, error) {
+			_, ok := token.Method.(*jwt.SigningMethodHMAC)
+			if !ok {
+				return nil, ErrTokenMethod
+			}
+
+			return []byte(j.refreshSecretKey), nil
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrInvalidRefreshToken, err)
+	}
+	claims, ok := token.Claims.(*RefreshTokenClaims)
 	if !ok {
 		return nil, ErrInvalidTokenClaims
 	}

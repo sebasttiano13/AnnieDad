@@ -44,6 +44,13 @@ func (d *DBConfig) GetDSN() string {
 	)
 }
 
+type TokensConfig struct {
+	AccessTokenDuration     int `yaml:"access_token_duration" env:"ACCESS_TOKEN_DURATION" env-default:"15"`
+	RefreshTokenDuration    int `yaml:"refresh_token_duration" env:"REFRESH_TOKEN_DURATION" env-default:"43200"`
+	RefreshTokenRenewBefore int `yaml:"refresh_token_renew_before" env:"REFRESH_TOKEN_RENEW_BEFORE" env-default:"60"`
+	RefreshCleanupInterval  int `yaml:"refresh_cleanup_interval" env:"REFRESH_CLEANUP_INTERVAL" env-default:"1"`
+}
+
 // DadConfig stores all config for the application
 type DadConfig struct {
 	LoggerCfg     LoggerConfig     `yaml:"logger"`
@@ -51,6 +58,7 @@ type DadConfig struct {
 	Cert          Cert             `yaml:"cert"`
 	DBCfg         DBConfig         `yaml:"db"`
 	S3Cfg         S3Config         `yaml:"s3"`
+	TokensCfg     TokensConfig     `yaml:"tokens"`
 }
 
 // GetGRPSAddress returns address:port of grps server
@@ -59,13 +67,11 @@ func (d *DadConfig) GetGRPSAddress() string {
 }
 
 type GRPSServerConfig struct {
-	Host                 string `yaml:"host" env:"SERVER_HOST" env-default:"localhost"`
-	Port                 int    `yaml:"port" env:"SERVER_PORT" env-default:"8081"`
-	Secure               bool   `yaml:"secure" env:"SERVER_SECURE" env-default:"false"`
-	AccessSecret         string `yaml:"access_secret" env:"SERVER_ACCESS_SECRET" env-default:""`
-	RefreshSecret        string `yaml:"refresh_secret" env:"SERVER_REFRESH_SECRET" env-default:""`
-	AccessTokenDuration  int    `yaml:"access_token_duration" env:"ACCESS_TOKEN_DURATION" env-default:"15"`
-	RefreshTokenDuration int    `yaml:"refresh_token_duration" env:"REFRESH_TOKEN_DURATION" env-default:"43200"`
+	Host          string `yaml:"host" env:"SERVER_HOST" env-default:"localhost"`
+	Port          int    `yaml:"port" env:"SERVER_PORT" env-default:"8081"`
+	Secure        bool   `yaml:"secure" env:"SERVER_SECURE" env-default:"false"`
+	AccessSecret  string `yaml:"access_secret" env:"SERVER_ACCESS_SECRET" env-default:""`
+	RefreshSecret string `yaml:"refresh_secret" env:"SERVER_REFRESH_SECRET" env-default:""`
 }
 
 // NewDadConfig is a constructor for DadConfig

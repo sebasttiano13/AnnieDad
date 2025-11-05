@@ -98,7 +98,7 @@ func (i *AuthInterceptor) authorize(ctx context.Context, method string) (context
 	}
 
 	accessToken := values[0]
-	claims, err := i.jwtManager.VerifyToken(accessToken, jwt.AccessToken)
+	claims, err := i.jwtManager.VerifyAccessToken(accessToken)
 	if err != nil {
 		return nil, status.Errorf(codes.Unauthenticated, err.Error())
 	}

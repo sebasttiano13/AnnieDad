@@ -27,6 +27,13 @@ type MediaServer struct {
 	pbMedia.UnimplementedMediaServer
 }
 
+type TokenManager interface {
+	GetTokens(ctx context.Context, userID string) (string, string, error)
+	RefreshTokens(ctx context.Context, refreshToken string) (string, string, error)
+	RevokeToken(ctx context.Context, refreshToken string) error
+	RunCleanup(ctx context.Context)
+}
+
 type WebAuthenticator interface {
 	RegisterWeb(ctx context.Context, name, password string) (string, string, error)
 	LoginWeb(ctx context.Context, name, password string) (string, string, error)

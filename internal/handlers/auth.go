@@ -17,7 +17,7 @@ func (s *AuthServer) RegisterTelegram(ctx context.Context, in *pb.TelegramRegist
 		if errors.Is(err, service.ErrUserAlreadyExist) {
 			return nil, status.Error(codes.AlreadyExists, err.Error())
 		}
-		if errors.Is(err, service.ErrUserRegisrationFailed) {
+		if errors.Is(err, service.ErrUserRegistrationFailed) {
 			return nil, status.Error(codes.Internal, err.Error())
 		}
 	}
