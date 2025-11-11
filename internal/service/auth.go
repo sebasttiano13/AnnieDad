@@ -36,6 +36,14 @@ func (a *AuthService) RegisterTelegram(ctx context.Context, telegramID int64, na
 		return "", "", ErrUserRegistrationFailed
 	}
 	logger.Infof("%s registered successfully", user.Name)
+	// Create user group
+	_, err = a.Repo.AddGroup(ctx, user.Name, user.ID)
+	if err != nil {
+		logger.Errorf("failed to add group to user with ID %d: %v", user.ID, err)
+		return "", "", ErrUserRegistrationFailed
+	}
+	logger.Infof("group successfully created for user %s", user.Name)
+
 	access, refresh, err := a.Tokens.GetTokens(ctx, user.ID)
 	if err != nil {
 		logger.Errorf("failed to get tokens: %v", err)

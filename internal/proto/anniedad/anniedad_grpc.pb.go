@@ -11,7 +11,6 @@ import (
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 )
 
 // This is a compile-time assertion to ensure that this generated file
@@ -20,18 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Media_PostURL_FullMethodName    = "/main.Media/PostURL"
-	Media_GetURL_FullMethodName     = "/main.Media/GetURL"
-	Media_GetListURL_FullMethodName = "/main.Media/GetListURL"
+	Media_PostURLs_FullMethodName = "/main.Media/PostURLs"
+	Media_GetURLs_FullMethodName  = "/main.Media/GetURLs"
 )
 
 // MediaClient is the client API for Media service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MediaClient interface {
-	PostURL(ctx context.Context, in *PostMediaRequest, opts ...grpc.CallOption) (*PostMediaResponse, error)
-	GetURL(ctx context.Context, in *GetMediaRequest, opts ...grpc.CallOption) (*GetMediaResponse, error)
-	GetListURL(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMediaResponse, error)
+	PostURLs(ctx context.Context, in *PostMediaRequest, opts ...grpc.CallOption) (*PostMediaResponse, error)
+	GetURLs(ctx context.Context, in *GetMediaRequest, opts ...grpc.CallOption) (*GetMediaResponse, error)
 }
 
 type mediaClient struct {
@@ -42,27 +39,18 @@ func NewMediaClient(cc grpc.ClientConnInterface) MediaClient {
 	return &mediaClient{cc}
 }
 
-func (c *mediaClient) PostURL(ctx context.Context, in *PostMediaRequest, opts ...grpc.CallOption) (*PostMediaResponse, error) {
+func (c *mediaClient) PostURLs(ctx context.Context, in *PostMediaRequest, opts ...grpc.CallOption) (*PostMediaResponse, error) {
 	out := new(PostMediaResponse)
-	err := c.cc.Invoke(ctx, Media_PostURL_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Media_PostURLs_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *mediaClient) GetURL(ctx context.Context, in *GetMediaRequest, opts ...grpc.CallOption) (*GetMediaResponse, error) {
+func (c *mediaClient) GetURLs(ctx context.Context, in *GetMediaRequest, opts ...grpc.CallOption) (*GetMediaResponse, error) {
 	out := new(GetMediaResponse)
-	err := c.cc.Invoke(ctx, Media_GetURL_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *mediaClient) GetListURL(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetMediaResponse, error) {
-	out := new(GetMediaResponse)
-	err := c.cc.Invoke(ctx, Media_GetListURL_FullMethodName, in, out, opts...)
+	err := c.cc.Invoke(ctx, Media_GetURLs_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -73,9 +61,8 @@ func (c *mediaClient) GetListURL(ctx context.Context, in *emptypb.Empty, opts ..
 // All implementations must embed UnimplementedMediaServer
 // for forward compatibility
 type MediaServer interface {
-	PostURL(context.Context, *PostMediaRequest) (*PostMediaResponse, error)
-	GetURL(context.Context, *GetMediaRequest) (*GetMediaResponse, error)
-	GetListURL(context.Context, *emptypb.Empty) (*GetMediaResponse, error)
+	PostURLs(context.Context, *PostMediaRequest) (*PostMediaResponse, error)
+	GetURLs(context.Context, *GetMediaRequest) (*GetMediaResponse, error)
 	mustEmbedUnimplementedMediaServer()
 }
 
@@ -83,14 +70,11 @@ type MediaServer interface {
 type UnimplementedMediaServer struct {
 }
 
-func (UnimplementedMediaServer) PostURL(context.Context, *PostMediaRequest) (*PostMediaResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PostURL not implemented")
+func (UnimplementedMediaServer) PostURLs(context.Context, *PostMediaRequest) (*PostMediaResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PostURLs not implemented")
 }
-func (UnimplementedMediaServer) GetURL(context.Context, *GetMediaRequest) (*GetMediaResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetURL not implemented")
-}
-func (UnimplementedMediaServer) GetListURL(context.Context, *emptypb.Empty) (*GetMediaResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method GetListURL not implemented")
+func (UnimplementedMediaServer) GetURLs(context.Context, *GetMediaRequest) (*GetMediaResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetURLs not implemented")
 }
 func (UnimplementedMediaServer) mustEmbedUnimplementedMediaServer() {}
 
@@ -105,56 +89,38 @@ func RegisterMediaServer(s grpc.ServiceRegistrar, srv MediaServer) {
 	s.RegisterService(&Media_ServiceDesc, srv)
 }
 
-func _Media_PostURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Media_PostURLs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(PostMediaRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MediaServer).PostURL(ctx, in)
+		return srv.(MediaServer).PostURLs(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Media_PostURL_FullMethodName,
+		FullMethod: Media_PostURLs_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MediaServer).PostURL(ctx, req.(*PostMediaRequest))
+		return srv.(MediaServer).PostURLs(ctx, req.(*PostMediaRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _Media_GetURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Media_GetURLs_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetMediaRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MediaServer).GetURL(ctx, in)
+		return srv.(MediaServer).GetURLs(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: Media_GetURL_FullMethodName,
+		FullMethod: Media_GetURLs_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MediaServer).GetURL(ctx, req.(*GetMediaRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _Media_GetListURL_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(emptypb.Empty)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(MediaServer).GetListURL(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Media_GetListURL_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MediaServer).GetListURL(ctx, req.(*emptypb.Empty))
+		return srv.(MediaServer).GetURLs(ctx, req.(*GetMediaRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -167,16 +133,12 @@ var Media_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MediaServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "PostURL",
-			Handler:    _Media_PostURL_Handler,
+			MethodName: "PostURLs",
+			Handler:    _Media_PostURLs_Handler,
 		},
 		{
-			MethodName: "GetURL",
-			Handler:    _Media_GetURL_Handler,
-		},
-		{
-			MethodName: "GetListURL",
-			Handler:    _Media_GetListURL_Handler,
+			MethodName: "GetURLs",
+			Handler:    _Media_GetURLs_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

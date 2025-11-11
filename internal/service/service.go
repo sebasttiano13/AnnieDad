@@ -28,6 +28,7 @@ type AuthRepo interface {
 	AddUser(ctx context.Context, userName string, userPassword string) (*domains.User, error)
 	AddBotUser(ctx context.Context, telegramID int64, userName string) (*domains.User, error)
 	LinkTelegramUser(ctx context.Context, user *domains.User) error
+	AddGroup(ctx context.Context, groupName string, ownerID string) (*domains.Group, error)
 }
 
 type RefreshRepo interface {

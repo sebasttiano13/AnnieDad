@@ -2,11 +2,35 @@ package repository
 
 import (
 	"database/sql"
+	"encoding/json"
 	"time"
 
 	"github.com/sebasttiano13/AnnieDad/internal/domains"
 	"github.com/sebasttiano13/AnnieDad/internal/models"
 )
+
+func RecordToDomainFile(r *models.FileRecord) (*domains.File, error) {
+	meta := make(map[string]any)
+	if len(r.Meta) > 0 {
+		if err := json.Unmarshal(r.Meta, &meta); err != nil {
+			return nil, err
+		}
+	}
+
+	return &domains.File{
+		ID:          r.ID,
+		GroupID:     r.GroupID.String,
+		UploaderID:  r.UploaderID.String,
+		FileName:    r.FileName,
+		StoragePath: r.StoragePath,
+		MimeType:    domains.MimeType(r.MimeType),
+		SizeBytes:   r.SizeBytes,
+		UploadedAt:  r.UploadedAt,
+		Status:      domains.FileStatus(r.Status),
+		IsShared:    r.IsShared,
+		Meta:        meta,
+	}, nil
+}
 
 func userRecordToDomain(r *models.UserRecord) *domains.User {
 	if r == nil {

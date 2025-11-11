@@ -11,7 +11,16 @@ const (
 	UserName         = "username"
 	UserPassword     = "password"
 	UserEmail        = "email"
-	UserRegisteredAT = "registered_at"
+	UserRegisteredAt = "registered_at"
+)
+
+// group table fields
+const (
+	GroupID        = "id"
+	GroupName      = "name"
+	GroupOwnerID   = "owner_id"
+	GroupIsShared  = "is_shared"
+	GroupCreatedAt = "created_at"
 )
 
 // api_client table fields

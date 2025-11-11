@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"fmt"
+	"time"
 )
 
 type (
@@ -30,6 +31,19 @@ type (
 		IssuedAt  string `db:"issued_at"`
 		ExpiresAt string `db:"expires_at"`
 		Revoked   bool   `db:"revoked"`
+	}
+	FileRecord struct {
+		ID          string         `db:"id"`
+		GroupID     sql.NullString `db:"group_id"`
+		UploaderID  sql.NullString `db:"uploader_id"`
+		FileName    string         `db:"file_name"`
+		StoragePath string         `db:"storage_path"`
+		MimeType    string         `db:"mime_type"`
+		SizeBytes   int64          `db:"size_bytes"`
+		UploadedAt  time.Time      `db:"uploaded_at"`
+		Status      string         `db:"status"`
+		IsShared    bool           `db:"is_shared"`
+		Meta        []byte         `db:"meta"`
 	}
 )
 

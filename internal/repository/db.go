@@ -86,6 +86,34 @@ func (d *DBStorage) AddUser(ctx context.Context, userName string, userPassword s
 	return user, nil
 }
 
+func (d *DBStorage) AddGroup(ctx context.Context, groupName string, ownerID string) (*domains.Group, error) {
+	var shared bool
+	var owner *string
+	if ownerID != "" {
+		shared = false
+		owner = &ownerID
+	}
+	query, args, err := d.psql.Insert("groups").
+		Columns(GroupName, GroupOwnerID, GroupIsShared).
+		Values(groupName, owner, shared).
+		Suffix("RETURNING id").ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrDBSqlBuilder, err)
+	}
+	tx, err := d.db.Beginx()
+	if err != nil {
+		return nil, fmt.Errorf("%w: %v", ErrDBTransaction, err)
+	}
+	var id string
+	if err := tx.GetContext(ctx, &id, query, args...); err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	tx.Commit()
+	group := &domains.Group{ID: id}
+	return group, nil
+}
+
 // AddBotUser creates new user via telegram id
 func (d *DBStorage) AddBotUser(ctx context.Context, telegramID int64, userName string) (*domains.User, error) {
 	query, args, err := d.psql.Insert("users").
@@ -106,7 +134,7 @@ func (d *DBStorage) AddBotUser(ctx context.Context, telegramID int64, userName s
 	}
 
 	tx.Commit()
-	user := &domains.User{ID: id}
+	user := &domains.User{ID: id, Name: userName}
 	return user, nil
 }
 
