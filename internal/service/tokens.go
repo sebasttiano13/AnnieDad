@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -74,7 +75,7 @@ func (t *TokenService) generateRefreshToken(ctx context.Context, userID string) 
 
 	newTokenid := uuid.New().String()
 
-	refreshToken, err := t.jwtManager.GenerateRefreshToken(userID, newTokenid, t.opts.AccessTokenDuration)
+	refreshToken, err := t.jwtManager.GenerateRefreshToken(userID, newTokenid, t.opts.RefreshTokenDuration)
 	if err != nil {
 		logger.Errorf("refresh token generation failed: %v", err)
 		return "", ErrTokenService
@@ -99,6 +100,7 @@ func (t *TokenService) getRefreshToken(ctx context.Context, refreshID, userID st
 			logger.Infof("refresh by id %s not found. generating new", refreshID)
 			return t.generateRefreshToken(ctx, userID)
 		}
+		return "", fmt.Errorf("%w: %v", ErrTokenService, err)
 	}
 	if time.Until(currentRefresh.ExpiresAt) < t.opts.RefreshTokenRenewBefore {
 		logger.Infof("refresh by id %s soon will be expired. Renew refresh token", refreshID)

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"database/sql"
-	"strconv"
 	"time"
 
 	"github.com/sebasttiano13/AnnieDad/internal/domains"
@@ -36,17 +35,16 @@ func refreshRecordToDomain(r *models.RefreshTokenRecord) (*domains.RefreshToken,
 	if r == nil {
 		return nil, nil
 	}
-	// turn timestamp to time.Time
-	issuedAtsec, err := strconv.ParseInt(r.IssuedAt, 10, 64)
+
+	issuedAtts, err := time.Parse(time.RFC3339, r.IssuedAt)
 	if err != nil {
 		return nil, err
 	}
-	issuedAtts := time.Unix(issuedAtsec, 0)
-	expiresAtsec, err := strconv.ParseInt(r.IssuedAt, 10, 64)
+
+	expiresAtts, err := time.Parse(time.RFC3339, r.ExpiresAt)
 	if err != nil {
 		return nil, err
 	}
-	expiresAtts := time.Unix(expiresAtsec, 0)
 
 	return &domains.RefreshToken{
 		ID:        r.ID,
